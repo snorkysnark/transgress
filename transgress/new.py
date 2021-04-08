@@ -16,5 +16,7 @@ def new(folder: Path):
 from .main import run""")
 
     with script_folder.joinpath('main.py').open('w') as init_py:
-        init_py.write("""async def run(rows):
-   pass""")
+        init_py.write("""from safetywrap import Ok, Err
+
+async def run(input_rows, out):
+    await out.send(Ok(()))""")
