@@ -1,0 +1,37 @@
+#!/usr/bin/env python
+import os
+from pathlib import Path
+from argparse import ArgumentParser
+from transgress.run import run, RunOptions
+from transgress.new import new
+
+def dir_path(string):
+    if os.path.isdir(string):
+        return string
+    else:
+        raise NotADirectoryError(string)
+
+parser = ArgumentParser(description='Postgress database transformer')
+
+commands = parser.add_subparsers(dest='command')
+commands.required = True
+
+run_parser = commands.add_parser('run')
+run_parser.add_argument('folder', nargs='?', type=dir_path, default=os.getcwd())
+run_parser.add_argument('--noexport', action='store_true')
+run_parser.add_argument('--nodb', action='store_true')
+
+new_parser = commands.add_parser('new')
+new_parser.add_argument('folder', nargs='?', default=os.getcwd())
+
+args = parser.parse_args()
+folder = Path(args.folder)
+if args.command == 'run':
+    options = RunOptions.FULL
+    if args.nodb:
+        options = RunOptions.NODB
+    elif args.noexport:
+        options = RunOptions.NOEXPORT
+    run(folder, options)
+elif args.command == 'new':
+    new(folder)
