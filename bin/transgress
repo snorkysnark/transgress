@@ -4,6 +4,7 @@ from pathlib import Path
 from argparse import ArgumentParser
 from transgress.run import run, RunOptions
 from transgress.new import new
+from safetywrap import Option
 
 def dir_path(string):
     if os.path.isdir(string):
@@ -20,6 +21,7 @@ run_parser = commands.add_parser('run')
 run_parser.add_argument('folder', nargs='?', type=dir_path, default=os.getcwd())
 run_parser.add_argument('--noexport', action='store_true')
 run_parser.add_argument('--nodb', action='store_true')
+run_parser.add_argument('-l', '--limit', type=int)
 
 new_parser = commands.add_parser('new')
 new_parser.add_argument('folder', nargs='?', default=os.getcwd())
@@ -32,6 +34,6 @@ if args.command == 'run':
         options = RunOptions.NODB
     elif args.noexport:
         options = RunOptions.NOEXPORT
-    run(folder, options)
+    run(folder, options, Option.of(args.limit))
 elif args.command == 'new':
     new(folder)
