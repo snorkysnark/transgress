@@ -48,7 +48,8 @@ async def async_transform(script, dbname: Option[str], sql: Sql, export: bool, l
                         async for output_result in receiver:
                             handle_result(output_result, maybe_export, log_file)
 
-            maybe_db.commit()
+            if export:
+                maybe_db.commit()
 ##
 def transform(script, dbname: Option[str], sql: Sql, export: bool, limit: Option[int], log_path: Path):
     trio.run(async_transform, script, dbname, sql, export, limit, log_path)
