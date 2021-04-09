@@ -1,3 +1,4 @@
 transgress.egg-info/
 tmp/
 *.pyc
+*.log
