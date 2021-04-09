@@ -2,6 +2,10 @@
 > Python framework for transforming postgres data  
 > (useful for web scraping and the like)
 
+## Installation
+```
+pip install git+https://github.com/snorkysnark/transgress.git
+```
 ## Usage
 Run `transgress new [folder]` to create a script template:
 
