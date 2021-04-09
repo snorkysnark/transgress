@@ -8,5 +8,10 @@ setup(name='transgress',
       author_email='snorkysnark@gmail.com',
       license='MIT',
       packages=['transgress'],
+      install_requires=[
+        'safetywrap',
+        'trio'
+      ],
+      dependency_links=['https://github.com/psycopg/psycopg3.git#subdirectory=psycopg3'],
       zip_safe=False,
       scripts=['bin/transgress'])
