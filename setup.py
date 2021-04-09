@@ -10,8 +10,8 @@ setup(name='transgress',
       packages=['transgress'],
       install_requires=[
         'safetywrap',
-        'trio'
+        'trio',
+        'psycopg3 @ git+https://github.com/psycopg/psycopg3.git#subdirectory=psycopg3'
       ],
-      dependency_links=['https://github.com/psycopg/psycopg3.git#subdirectory=psycopg3'],
       zip_safe=False,
       scripts=['bin/transgress'])
