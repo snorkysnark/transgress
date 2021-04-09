@@ -2,6 +2,19 @@
 > Python framework for transforming postgres data  
 > (useful for web scraping and the like)
 
+## Table Of Contents
+* [Installation](#installation)
+* [Usage](#usage)
+   * [\_\_init\_\_.py](#\_\_init\_\_py)
+   * [select.sql](#selectsql)
+   * [before_copy.sql](#before_copysql)
+   * [copy.sql](#copysql)
+   * [after_copy.sql](#after_copysql)
+   * [main.py](#mainpy)
+   * [Run command](#run-command)
+
+
+
 ## Installation
 ```
 pip install git+https://github.com/snorkysnark/transgress.git
