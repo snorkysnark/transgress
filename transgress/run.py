@@ -5,6 +5,7 @@ from enum import Enum
 from .sql import Sql
 from .postgres import Db, MaybeDb, MaybeExport
 from safetywrap import Option, Some, Nothing
+import inspect
 ##
 class RunOptions(Enum):
     NODB = 1
@@ -12,9 +13,14 @@ class RunOptions(Enum):
     FULL = 3
 ##
 
-async def run_script(script, input_rows, sender):
+async def run_script(script, input_rows, sender, other_args):
     async with sender:
-        await script.run(input_rows, sender)
+        if len(inspect.getargspec(script.run).args):
+            # Script has an additional 'args' parameter
+            await script.run(input_rows, sender, other_args)
+        else:
+            # Old script version, no 'args'
+            await script.run(input_rows, sender)
 ##
 def handle_error(error, log_file):
     print(error)
@@ -34,7 +40,7 @@ def clamp_to_limit(rows, limit_opt: Option[int]):
     return rows
 
 ##
-async def async_transform(script, dbname: Option[str], sql: Sql, export: bool, limit: Option[int], log_path: Path):
+async def async_transform(script, dbname: Option[str], sql: Sql, export: bool, limit: Option[int], log_path: Path, other_args):
     with log_path.open('w') as log_file:
         with MaybeDb(dbname.map(lambda name: Db(sql, name))) as maybe_db:
             input_rows = maybe_db.select_result().unwrap_or([])
@@ -43,7 +49,7 @@ async def async_transform(script, dbname: Option[str], sql: Sql, export: bool, l
             with MaybeExport((maybe_db.export() if export else Nothing())) as maybe_export:
                 sender, receiver = trio.open_memory_channel(0)
                 async with trio.open_nursery() as nurs:
-                    nurs.start_soon(run_script, script, input_rows, sender)
+                    nurs.start_soon(run_script, script, input_rows, sender, other_args)
                     async with receiver:
                         async for output_result in receiver:
                             handle_result(output_result, maybe_export, log_file)
@@ -51,11 +57,11 @@ async def async_transform(script, dbname: Option[str], sql: Sql, export: bool, l
             if export:
                 maybe_db.commit()
 ##
-def transform(script, dbname: Option[str], sql: Sql, export: bool, limit: Option[int], log_path: Path):
-    trio.run(async_transform, script, dbname, sql, export, limit, log_path)
+def transform(script, dbname: Option[str], sql: Sql, export: bool, limit: Option[int], log_path: Path, other_args):
+    trio.run(async_transform, script, dbname, sql, export, limit, log_path, other_args)
 
 ##
-def run(folder: Path, options: RunOptions, limit: Option[int]):
+def run(folder: Path, options: RunOptions, limit: Option[int], other_args):
     sql = Sql.load_files(folder)
 
     sys.path.append(str(folder))
@@ -65,8 +71,8 @@ def run(folder: Path, options: RunOptions, limit: Option[int]):
 
     if options != RunOptions.NODB:
         if script.DBNAME != '':
-            transform(script, Some(script.DBNAME), sql, options == RunOptions.FULL, limit, log_path)
+            transform(script, Some(script.DBNAME), sql, options == RunOptions.FULL, limit, log_path, other_args)
         else:
             print('DBNAME not specified. Run with --nodb or fill DBNAME in script/__init__.py')
     else:
-        transform(script, Nothing(), sql, False, limit, log_path)
+        transform(script, Nothing(), sql, False, limit, log_path, other_args)

@@ -26,7 +26,7 @@ run_parser.add_argument('-l', '--limit', type=int)
 new_parser = commands.add_parser('new')
 new_parser.add_argument('folder', nargs='?', default=os.getcwd())
 
-args = parser.parse_args()
+args, unknown_args = parser.parse_known_args()
 folder = Path(args.folder)
 if args.command == 'run':
     options = RunOptions.FULL
@@ -34,6 +34,6 @@ if args.command == 'run':
         options = RunOptions.NODB
     elif args.noexport:
         options = RunOptions.NOEXPORT
-    run(folder, options, Option.of(args.limit))
+    run(folder, options, Option.of(args.limit), unknown_args)
 elif args.command == 'new':
     new(folder)
