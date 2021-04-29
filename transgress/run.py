@@ -15,7 +15,7 @@ class RunOptions(Enum):
 
 async def run_script(script, input_rows, sender, other_args):
     async with sender:
-        if len(inspect.getargspec(script.run).args):
+        if len(inspect.getargspec(script.run).args) == 3:
             # Script has an additional 'args' parameter
             await script.run(input_rows, sender, other_args)
         else:
